@@ -25,9 +25,10 @@ const defaultVendors = [
   "+ Create New Vendor"
 ];
 const defaultSuppliers = ["Medline", "GeoSurgical", "RevMed", "SPS", "All Dats Medical", "Fast Surgical Solutions", "Med Choice Inc.", "DJ Medical", "+ Add Supplier"];
-const defaultCustomers = ["AHS", "BL", "RFP", "CASCADE", "REDHEAD", "SUNCOAST", "MAP", "PMCY", "EMMANUEL JR", "SurgiShop", "Synergy", "POSS", "+ Add Customer"];
+const defaultCustomers = ["AHS", "Animal Eye Care", "BL", "RFP", "CASCADE", "REDHEAD", "SUNCOAST", "MAP", "PMCY", "EMMANUEL", "EMMANUEL JR", "SurgiShop", "Synergy", "POSS", "+ Add Customer"];
 
 const DatabaseManager = {
+  users: JSON.parse(localStorage.getItem('asp_wh_users')) || ["Thomas", "Trey", "Jessica", "+ New User"], // ✨ NEW: Dynamic user list
   db: JSON.parse(localStorage.getItem('asp_wh_db')) || [],
   vendors: JSON.parse(localStorage.getItem('asp_wh_vendors')) || defaultVendors,
   suppliers: JSON.parse(localStorage.getItem('asp_wh_suppliers')) || defaultSuppliers,
@@ -55,6 +56,13 @@ const DatabaseManager = {
       const response = await fetch('database.json');
       if (response.ok) {
         const jsonContent = await response.json();
+        
+        // ✨ NEW: Parse the Users Array
+        if (jsonContent.users && jsonContent.users.length > 0) {
+          this.users = jsonContent.users;
+          if (!this.users.includes("+ New User")) this.users.push("+ New User");
+          localStorage.setItem('asp_wh_users', JSON.stringify(this.users));
+        }
         if (jsonContent.items && jsonContent.items.length > 0) {
           this.db = jsonContent.items;
           localStorage.setItem('asp_wh_db', JSON.stringify(this.db));

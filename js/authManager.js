@@ -83,11 +83,84 @@ const AuthManager = {
       this.isGuest = false;
       this.isWorkstation = isWorkstationEmail;
       
-      sessionStorage.setItem('asp_auth_session', JSON.stringify(this.currentUser));
-      this.unlockApp();
+      if (this.isWorkstation) {
+        // ✨ NEW: Intercept the login and force the user name prompt
+        this.promptWorkstationUser();
+      } else {
+        // Standard user flow
+        sessionStorage.setItem('asp_auth_session', JSON.stringify(this.currentUser));
+        this.unlockApp();
+      }
     } else {
       alert("Access Denied: You must be an authorized Allied Surgical Products employee.");
     }
+  },
+
+  // ✨ NEW: Workstation Profile Gateway Functions
+  promptWorkstationUser() {
+    let modal = document.createElement('div');
+    modal.id = 'workstationUserModal';
+    modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999999; display:flex; justify-content:center; align-items:center; padding:15px; box-sizing:border-box;';
+    
+    let userList = (typeof DatabaseManager !== 'undefined' && DatabaseManager.users) ? DatabaseManager.users : ["Thomas", "Trey", "Jessica", "+ New User"];
+    let optionsHtml = userList.map(u => `<option value="${u}">${u}</option>`).join('');
+
+    modal.innerHTML = `
+      <div style="background:#fff; border-radius:8px; width:100%; max-width:400px; padding:20px; box-shadow:0 4px 20px rgba(0,0,0,0.5); text-align:center;">
+        <h3 style="margin:0 0 15px 0; color:#0277bd;">🏭 Workstation Login</h3>
+        <p style="font-size:0.9rem; color:#555; margin-bottom:15px;">Please select your User Name to continue.</p>
+        
+        <select id="workstationUserSelect" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; font-size:1rem; font-weight:bold; margin-bottom:20px; color:#0277bd;">
+            ${optionsHtml}
+        </select>
+
+        <div style="display:flex; justify-content:space-between; gap:10px;">
+          <button onclick="AuthManager.cancelWorkstationLogin()" style="flex:1; background:#757575; color:#fff; border:none; padding:10px; border-radius:4px; cursor:pointer;">Cancel</button>
+          <button onclick="AuthManager.confirmWorkstationLogin()" style="flex:1; background:#0277bd; color:#fff; border:none; padding:10px; border-radius:4px; font-weight:bold; cursor:pointer;">Login</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Dynamic "+ New User" logic
+    document.getElementById('workstationUserSelect').addEventListener('change', (e) => {
+        if (e.target.value === "+ New User") {
+            let newName = prompt("Enter new User Name:");
+            if (newName && newName.trim()) {
+                let cleanName = newName.trim();
+                if (typeof DatabaseManager !== 'undefined' && DatabaseManager.users) {
+                    DatabaseManager.users.splice(DatabaseManager.users.length - 1, 0, cleanName);
+                    localStorage.setItem('asp_wh_users', JSON.stringify(DatabaseManager.users));
+                }
+                let opt = document.createElement('option');
+                opt.value = cleanName; opt.textContent = cleanName;
+                e.target.insertBefore(opt, e.target.lastElementChild);
+                e.target.value = cleanName;
+            } else {
+                e.target.selectedIndex = 0;
+            }
+        }
+    });
+  },
+
+  confirmWorkstationLogin() {
+    let sel = document.getElementById('workstationUserSelect');
+    let chosenName = sel ? sel.value : "";
+    if (!chosenName || chosenName === "+ New User") {
+        alert("Please select a valid User Name.");
+        return;
+    }
+    
+    localStorage.setItem('asp_user_name', chosenName);
+    sessionStorage.setItem('asp_auth_session', JSON.stringify(this.currentUser));
+    document.getElementById('workstationUserModal').remove();
+    this.unlockApp(); // Continue the sequence
+  },
+
+  cancelWorkstationLogin() {
+    let modal = document.getElementById('workstationUserModal');
+    if (modal) modal.remove();
+    this.logout(true);
   },
 
   continueAsGuest() {
@@ -153,9 +226,33 @@ const AuthManager = {
       
       let userNameSelect = document.getElementById('userNameSelect');
       
+      // UI Element Targeting
+      let btnStock = document.getElementById('btnStocktake');
+      let btnDbEditor = document.querySelector('button[onclick="UIManager.openDbEditor()"]'); // Select by action since it lacks an ID
+      let preloadToggle = document.getElementById('rowPreloadToggle');
+      let feedPanel = document.getElementById('panelStagedFeed');
+      let reportsInv = document.getElementById('panelInventoryReports');
+      let reportsRevMed = document.getElementById('panelRevMedReports');
+      let reportsCust = document.getElementById('panelCustomerReports');
+
       if (this.isWorkstation) {
          if (userNameInput) userNameInput.style.display = 'none';
-         if (userNameSelect) userNameSelect.style.display = 'block';
+         if (userNameSelect) {
+             userNameSelect.style.display = 'block';
+             let userList = (typeof DatabaseManager !== 'undefined' && DatabaseManager.users) ? DatabaseManager.users : ["Thomas", "Trey", "Jessica", "+ New User"];
+             userNameSelect.innerHTML = userList.map(u => `<option value="${u}">${u}</option>`).join('');
+             userNameSelect.value = localStorage.getItem('asp_user_name') || userList[0];
+         }
+         
+         // ✨ NEW: Hide Danger Zones from Workstation
+         if (btnStock) btnStock.style.display = 'none';
+         if (btnDbEditor) btnDbEditor.style.display = 'none';
+         if (preloadToggle) preloadToggle.style.display = 'none';
+         if (feedPanel) feedPanel.style.display = 'none';
+         if (reportsInv) reportsInv.style.display = 'none';
+         if (reportsRevMed) reportsRevMed.style.display = 'none';
+         if (reportsCust) reportsCust.style.display = 'none';
+
       } else {
          if (userNameInput) {
              userNameInput.style.display = 'block';

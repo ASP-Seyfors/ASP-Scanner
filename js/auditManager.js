@@ -59,11 +59,19 @@ const AuditManager = {
     btn.disabled = true;
 
     try {
-      let res = await fetch(`${SessionManager.getActiveArchiveUrl()}?action=GET_SESSION&id=${sessionId}`);
-      let sessionData = await res.json();
+      // ✨ FIX: encodeURIComponent safely packages special characters (like # or spaces) for web travel
+      let res = await fetch(`${SessionManager.getActiveArchiveUrl()}?action=GET_SESSION&id=${encodeURIComponent(sessionId)}`);
+      let rawText = await res.text();
+      
+      // ✨ FIX: Intercept HTML error pages before JSON.parse crashes
+      if (rawText.trim().startsWith('<')) {
+          throw new Error("Google returned an HTML error page. The session ID may be malformed or the payload is too large.");
+      }
+      
+      let sessionData = JSON.parse(rawText);
 
       if (!sessionData || sessionData.status === "error") {
-        throw new Error("Could not download session payload from the cloud.");
+        throw new Error(sessionData.message || "Could not download session payload from the cloud.");
       }
 
       // Temporarily mock SessionManager state

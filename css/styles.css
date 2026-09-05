@@ -18,7 +18,9 @@
  * All Rights Reserved.
  * ======================================================================= */
 /* Theme Variables (Modernized Flat Design) */
-body, body.theme-slate {
+
+/* 1. ASP Classic (Light Theme - Matches Website) */
+body, body.theme-gold {
   --bg-color: #f4f6f8; 
   --desktop-bg: #e9ecef;
   --card-bg: #ffffff;
@@ -26,20 +28,22 @@ body, body.theme-slate {
   --border-color: #e0e0e0;
 }
 
-body.theme-sage {
-  --bg-color: #ebede9;
-  --desktop-bg: #dfe3dd;
-  --card-bg: #ffffff;
-  --raw-bg: #f1f3f0;
-  --border-color: #d1d6ce;
+/* 2. ASP Midnight (True Dark Theme) */
+body.theme-slate {
+  --bg-color: #121212;
+  --desktop-bg: #0a0a0a;
+  --card-bg: #1e1e1e;
+  --raw-bg: #2c2c2c;
+  --border-color: #333333;
 }
 
-body.theme-gold {
-  --bg-color: #fdfbf0;
-  --desktop-bg: #f5f0d4;
-  --card-bg: #ffffff;
-  --raw-bg: #faf8ed;
-  --border-color: #e4dcb2;
+/* 3. ASP Twilight (Hybrid Navy Blue) */
+body.theme-sage {
+  --bg-color: #1a2634;
+  --desktop-bg: #111a24;
+  --card-bg: #233547;
+  --raw-bg: #2e4359;
+  --border-color: #3a506b;
 }
 
 /* Base Body Styles (Centering Preserved across All Themes) */
@@ -156,12 +160,12 @@ input.needs-attention, select.needs-attention {
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.action-btn.selected-inv { background-color: #2e7d32; color: #ffffff; border: none; }
-.action-btn.selected-res { background-color: #0277bd; color: #ffffff; border: none; }
+.action-btn.selected-inv { background-color: #0071ce; color: #ffffff; border: none; }
+.action-btn.selected-res { background-color: #ffb81c; color: #333333; border: none; font-weight: bold; }
 
 .btn-confirm {
   padding: 6px 10px;
-  background-color: #d9534f;
+  background-color: #d32f2f;
   color: #ffffff;
   border: none;
   font-size: 0.8rem;
@@ -224,7 +228,7 @@ input.needs-attention, select.needs-attention {
 }
 
 .btn-small {
-  background-color: #2e7d32;
+  background-color: #0071ce;
   color: #ffffff;
   border: none;
   padding: 8px 12px;
@@ -235,15 +239,15 @@ input.needs-attention, select.needs-attention {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.btn-cam { background-color: #e65100; }
-.btn-upload { background-color: #1976d2; }
+.btn-cam { background-color: #ffb81c; color: #333; }
+.btn-upload { background-color: #0071ce; }
 .btn-clear { background-color: #757575; color: #ffffff; }
-.btn-start { background-color: #4caf50; color: #ffffff; }
-.btn-stop { background-color: #f44336; color: #ffffff; }
+.btn-start { background-color: #0071ce; color: #ffffff; }
+.btn-stop { background-color: #d32f2f; color: #ffffff; }
 .btn-cancel { background-color: #d32f2f; color: #ffffff; }
-.btn-continue { background-color: #1976d2; color: #ffffff; }
+.btn-continue { background-color: #0071ce; color: #ffffff; }
 .btn-save { background-color: #2e7d32; color: #ffffff; }
-.btn-complete { background-color: #0277bd; color: #ffffff;}
+.btn-complete { background-color: #ffb81c; color: #333;}
 
 .header-banner {
   background-color: #ffffff;
@@ -500,3 +504,14 @@ body.font-large { font-size: 18px !important; }
 
 body.font-small input, body.font-small select, body.font-small button { font-size: 0.82rem !important; }
 body.font-large input, body.font-large select, body.font-large button { font-size: 1.05rem !important; }
+
+/* SPECIFIC DARK MODE OVERRIDES */
+body.theme-slate input, body.theme-slate select, body.theme-slate textarea { color: #ffffff !important; }
+body.theme-slate .form-label, body.theme-slate h2, body.theme-slate h3, body.theme-slate h4 { color: #ffffff !important; }
+body.theme-slate .header-banner h3, body.theme-slate .header-sub { color: #e0e0e0 !important; }
+body.theme-slate .review-line { border-bottom-color: #444; }
+
+body.theme-sage input, body.theme-sage select, body.theme-sage textarea { color: #ffffff !important; }
+body.theme-sage .form-label, body.theme-sage h2, body.theme-sage h3, body.theme-sage h4 { color: #ffffff !important; }
+body.theme-sage .header-banner h3, body.theme-sage .header-sub { color: #e0e0e0 !important; }
+body.theme-sage .review-line { border-bottom-color: #455a64; }
