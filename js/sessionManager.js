@@ -1210,7 +1210,12 @@ REF [Tab] Quantity [Tab] Lot [Tab] Exp`;
           UIManager.showCustomAlert("UOM Conversion", `Box Barcode (${ref.toUpperCase()}) Detected. Converted to ${uomResult.trueQty} individual units of ${uomResult.trueRef}.`);
       }
       rawGtin = "N/A"; 
+      
+      // ✨ FIX: Check the master DB first, then check the pending memory!
       matchedDbItem = DatabaseManager.db.find(i => (i.sku || i.ref || '').toUpperCase() === uomResult.trueRef);
+      if (!matchedDbItem) {
+          matchedDbItem = this.pendingNewItems.find(i => (i.sku || i.ref || '').toUpperCase() === uomResult.trueRef);
+      }
     }
 
     ref = uomResult.trueRef;
@@ -1221,18 +1226,23 @@ REF [Tab] Quantity [Tab] Lot [Tab] Exp`;
     let uMult = 1;
 
     if (isNewItem) {
-       let confirmNew = confirm(`⚠️ UNRECOGNIZED REF DETECTED ⚠️\n\nThe REF/SKU "${ref}" does not exist in the master database.\n\nAre you sure you want to create a BRAND NEW item? If this is a typo, click Cancel and fix the REF.`);
-       if (!confirmNew) return; 
-
        let bundleChk = document.getElementById('chkIsBundle');
-       if (bundleChk && bundleChk.checked) {
+       let isBundle = bundleChk && bundleChk.checked;
+       let bundleWarning = "";
+
+       if (isBundle) {
            pRef = document.getElementById('bundleParentRef').value.trim().toUpperCase();
            uMult = parseInt(document.getElementById('bundleMult').value, 10) || 1;
            if (!pRef || uMult <= 1) {
                UIManager.showCustomAlert("Bundle Error", "Please provide a valid Parent REF and a Units Per Box quantity greater than 1.");
                return;
            }
+           // ✨ FIX: Modify the warning text to be explicit about creating two items
+           bundleWarning = `\n\n📦 BUNDLE DETECTED:\nThis will create the Box Barcode "${ref}" AND silently create the Individual Item "${pRef}" if it does not already exist.`;
        }
+
+       let confirmNew = confirm(`⚠️ UNRECOGNIZED REF DETECTED ⚠️\n\nThe REF/SKU "${ref}" does not exist in the master database.${bundleWarning}\n\nAre you sure you want to create a BRAND NEW item? If this is a typo, click Cancel and fix the REF.`);
+       if (!confirmNew) return; 
 
        let alreadyPending = this.pendingNewItems.find(i => i.ref === ref);
        if (!alreadyPending) {

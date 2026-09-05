@@ -377,6 +377,9 @@ const AuthManager = {
     localStorage.removeItem('asp_auth_session');
     sessionStorage.removeItem('asp_auth_session');
     
+    // ✨ FIX: Wipe the Circuit Breaker token so the next user is forced to re-download the allocations!
+    sessionStorage.removeItem('asp_allocations_verified');
+    
     // SECURITY PATCH: Wipe sensitive warehouse data upon logout
     localStorage.removeItem('asp_allocations');
     localStorage.removeItem('asp_remote_analytics');
